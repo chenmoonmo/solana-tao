@@ -1,5 +1,5 @@
 pub mod subnet;
-pub mod system_info;
+pub mod bittensor;
 
 pub use subnet::*;
-pub use system_info::*;
+pub use bittensor::*;

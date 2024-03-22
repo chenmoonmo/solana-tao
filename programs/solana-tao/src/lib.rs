@@ -1,5 +1,5 @@
-pub mod states;
 pub mod instructions;
+pub mod states;
 
 use anchor_lang::prelude::*;
 
@@ -10,7 +10,11 @@ declare_id!("G4eLua3cJfGkAkuYramavo2QjEwU37SUk6RJeW8U8bSW");
 pub mod solana_tao {
     use super::*;
 
-    pub fn initialize_system(ctx:Context<InitializeBittensor>) -> Result<()> {
+    pub fn initialize_system(ctx: Context<InitializeBittensor>) -> Result<()> {
         instructions::initialize_bittensor(ctx)
+    }
+
+    pub fn initialize_subnet(ctx: Context<InitializeSubnet>) -> Result<()> {
+        instructions::initialize_subnet(ctx)
     }
 }

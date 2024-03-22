@@ -13,9 +13,11 @@ describe("solana-tao", () => {
 
   const program = anchor.workspace.SolanaTao as Program<SolanaTao>;
 
-  let user = anchor.web3.Keypair.generate();
+  let user: anchor.web3.Keypair;
+  let systemPDA: anchor.web3.PublicKey;
 
-  it("Is initialized!", async () => {
+  it("Is initialized bittensor!", async () => {
+    user = anchor.web3.Keypair.generate();
     // airdrop some SOL to the user
     const sig = await connection.requestAirdrop(
       user.publicKey,
@@ -29,13 +31,10 @@ describe("solana-tao", () => {
       signature: sig,
     });
 
-    const [systemPDA] = await anchor.web3.PublicKey.findProgramAddressSync(
+    [systemPDA] = await anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from(Buffer.from("system"))],
       program.programId
     );
-
-    console.log("System PDA: ", systemPDA.toBase58());
-    console.log("User: ", user.publicKey.toBase58());
 
     // Add your test here.
     await program.methods
@@ -43,17 +42,44 @@ describe("solana-tao", () => {
       .accounts({
         owner: user.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
-        systemState: systemPDA,
+        bittensorState: systemPDA,
       })
       .signers([user])
       .rpc()
       .catch((err) => {
         console.log("Error: ", err);
-      }
-    );
+      });
 
-    const state = await program.account.systemInfoState.fetch(systemPDA);
+    const state = await program.account.bittensorState.fetch(systemPDA);
 
     console.log("State: ", state);
+  });
+
+  it("Is initlialized subnet", async () => {
+    const [subnetState] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("subnet_state")],
+      program.programId
+    );
+
+    await program.methods
+      .initializeSubnet()
+      .accounts({
+        subnetState,
+        bittensorState: systemPDA,
+        owner: user.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([user])
+      .rpc()
+      .catch((err) => {
+        console.log("Error: ", err);
+      });
+
+    const subnet = await program.account.subnetState.fetch(subnetState);
+    const bittensor = await program.account.bittensorState.fetch(systemPDA);
+
+
+    console.log("Subnet state: ", subnet);
+    console.log("Bittensor state: ", bittensor);
   });
 });

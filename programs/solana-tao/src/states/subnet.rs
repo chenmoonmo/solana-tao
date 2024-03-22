@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 
 #[account]
-#[derive(Default, Debug)]
 pub struct SubnetState {
     // 验证人质押总量
     pub total_stake: u64,
@@ -29,13 +28,5 @@ pub struct SubnetState {
 }
 
 impl SubnetState {
-
-    pub const LEN : usize = 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8;
-
-    pub fn new(owner: Pubkey) -> Self {
-        SubnetState {
-            owner,
-            ..Default::default()
-        }
-    }
+    pub const LEN: usize = 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8;
 }

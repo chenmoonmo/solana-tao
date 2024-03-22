@@ -11,7 +11,7 @@ pub struct InitializeBittensor<'info> {
     #[account(
         init,
         payer = owner,
-        space = BittensorState::LEN ,
+        space = 10 * 1024 as usize,
         seeds = [b"system".as_ref()],
         bump
     )]
