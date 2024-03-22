@@ -2,7 +2,9 @@ use anchor_lang::prelude::*;
 
 use crate::states::*;
 
-pub fn initialize_bittensor(_ctx: Context<InitializeBittensor>) -> Result<()> {
+pub fn initialize_bittensor(ctx: Context<InitializeBittensor>) -> Result<()> {
+    let bittensor_state = &mut ctx.accounts.bittensor_state;
+    bittensor_state.owner = ctx.accounts.owner.key();
     Ok(())
 }
 
@@ -15,7 +17,7 @@ pub struct InitializeBittensor<'info> {
         seeds = [b"system".as_ref()],
         bump
     )]
-    pub bittensor_state: AccountLoader<'info, BittensorState>,
+    pub bittensor_state: Box<Account<'info, BittensorState>>,
 
     #[account(mut)]
     pub owner: Signer<'info>,

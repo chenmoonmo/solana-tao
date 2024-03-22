@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+// #[account(zero_copy(unsafe))]
+// #[repr(packed)]
 #[account]
 pub struct SubnetState {
     // 验证人质押总量
@@ -25,8 +27,76 @@ pub struct SubnetState {
     pub validata_amount: u64,
     // 子网中允许的最大矿工数量
     pub miner_amount: u64,
+    // 验证人列表
+    pub validators: Vec<ValidatorInfo>,
+    // 矿工列表
+    pub miners: Vec<MinerInfo>,
 }
 
 impl SubnetState {
-    pub const LEN: usize = 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8;
+    pub const LEN: usize = 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8 + 24 + 24;
+
+    pub fn space(&self) -> usize {
+        let validator_num = self.validators.len();
+        let miner_num = self.miners.len();
+
+        8 + 8
+            + 8
+            + 8
+            + 1
+            + 32
+            + 8
+            + 8
+            + 8
+            + 8
+            + 8
+            + 8
+            + 24
+            + 24
+            + (validator_num + miner_num + 1) * ValidatorInfo::LEN
+    }
+
+    pub fn create_validator(&mut self, owner: Pubkey, stake: u64, bonds: u64, lockup: u64) {
+        // let len = self.validators.len();
+
+        // if len >= self.validata_amount as usize {
+        //     return;
+        // }
+
+        self.validators.push(ValidatorInfo {
+            id: self.validators.len() as u64,
+            owner,
+            stake,
+            bonds,
+            lockup,
+        });
+    }
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
+pub struct ValidatorInfo {
+    pub id: u64,
+    pub owner: Pubkey,
+    // 质押数量
+    pub stake: u64,
+    // 工作量
+    pub bonds: u64,
+    // 保护期
+    pub lockup: u64,
+}
+
+impl ValidatorInfo {
+    pub const LEN: usize = 8 + 32 + 8 + 8 + 8;
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
+pub struct MinerInfo {
+    pub id: u64,
+    pub owner: Pubkey,
+    // // 名称
+    // pub name: String,
+    // // 简介
+    // pub desc: String,
+    // // rpc
+    // pub rpc: String,
 }

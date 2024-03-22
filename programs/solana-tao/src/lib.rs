@@ -17,4 +17,8 @@ pub mod solana_tao {
     pub fn initialize_subnet(ctx: Context<InitializeSubnet>) -> Result<()> {
         instructions::initialize_subnet(ctx)
     }
+
+    pub fn initialize_subnet_validator(ctx: Context<InitializeSubnetValidator>) -> Result<()> {
+        instructions::initialize_subnet_validator(ctx)
+    }
 }

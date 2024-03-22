@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 
-#[account(zero_copy(unsafe))]
-#[repr(packed)]
+#[account]
 pub struct BittensorState {
+    pub owner: Pubkey,
     pub subnet_num: u8,
-    pub subnets: [Option<SubnetInfo>; 32],
+    pub subnets: Vec<SubnetInfo>,
 }
 
 impl BittensorState {
@@ -12,20 +12,8 @@ impl BittensorState {
     pub const SEED: &'static [u8] = b"system";
 
     pub fn create_subnet(&mut self, owner: Pubkey) -> () {
-        let subnets = self.subnets;
-
-        let lowest_index = match subnets.iter().position(|x| x.is_none()) {
-            Some(index) => index,
-            None => {
-                // TODO: handle error
-                return ();
-            }
-        };
-
-        msg!("create_subnet: lowest_index: {}", lowest_index);
-
-        self.subnets[lowest_index] = Some(SubnetInfo {
-            id: lowest_index as u8,
+        self.subnets.push(SubnetInfo {
+            id: self.subnets.len() as u8,
             owner,
             create_fee: 0,
             epoch: 0,
