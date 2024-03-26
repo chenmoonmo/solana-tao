@@ -77,6 +77,7 @@ impl SubnetState {
             owner,
         });
     }
+    // TODO: 分配奖励给验证人和矿工
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]

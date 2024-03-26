@@ -2,7 +2,13 @@ use crate::states::*;
 use anchor_lang::prelude::*;
 
 pub fn initialize_bittensor_validator(ctx: Context<InitializeBittensorValidator>) -> Result<()> {
+
     let bittensor_state = &mut ctx.accounts.bittensor_state;
+
+    // TODO: 
+    // 1.设置注册为主网验证人的标准
+    // 2.检查子网验证人的工作量是否达到标准
+    
     bittensor_state.create_validator(ctx.accounts.owner.key(), 0, 0, 0);
 
     Ok(())

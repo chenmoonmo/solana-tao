@@ -2,8 +2,13 @@ use crate::states::*;
 use anchor_lang::prelude::*;
 
 pub fn initialize_subnet_validator(ctx: Context<InitializeSubnetValidator>) -> Result<()> {
+  // TODO:
+    // 设置注册费用
+    // 注册验证人时 燃烧代币
+    // 验证人保护期初始化
     let subnet_state = &mut ctx.accounts.subnet_state;
     let validator_state = &mut ctx.accounts.validator_state;
+    
     validator_state.owner = ctx.accounts.owner.key();
     subnet_state.create_validator(ctx.accounts.owner.key(), 0, 0, 0);
 

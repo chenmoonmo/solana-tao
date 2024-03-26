@@ -36,6 +36,7 @@ impl BittensorState {
         });
         ()
     }
+    // TODO: 分配奖励给子网
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]

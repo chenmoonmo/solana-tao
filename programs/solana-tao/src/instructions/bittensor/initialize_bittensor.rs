@@ -5,7 +5,6 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 pub fn initialize_bittensor(ctx: Context<InitializeBittensor>) -> Result<()> {
     let bittensor_state = &mut ctx.accounts.bittensor_state;
     bittensor_state.owner = ctx.accounts.owner.key();
-    
     Ok(())
 }
 
