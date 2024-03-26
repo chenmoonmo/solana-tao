@@ -21,4 +21,8 @@ pub mod solana_tao {
     pub fn initialize_subnet_validator(ctx: Context<InitializeSubnetValidator>) -> Result<()> {
         instructions::initialize_subnet_validator(ctx)
     }
+
+    pub fn initialize_subnet_miner(ctx: Context<InitializeSubnetMiner>) -> Result<()> {
+        instructions::initialize_subnet_miner(ctx)
+    }
 }

@@ -13,8 +13,9 @@ pub struct InitializeBittensor<'info> {
     #[account(
         init,
         payer = owner,
-        space = 10 * 1024 as usize,
-        seeds = [b"system".as_ref()],
+        // TODO: 设置初始大小 并在添加子网时 动态分配大小
+        space = 8 + BittensorState::LEN,
+        seeds = [b"system"],
         bump
     )]
     pub bittensor_state: Box<Account<'info, BittensorState>>,

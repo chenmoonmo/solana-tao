@@ -17,6 +17,7 @@ describe("solana-tao", () => {
   let systemPDA: anchor.web3.PublicKey;
   let subnet1PDA: anchor.web3.PublicKey;
   let validator1PDA: anchor.web3.PublicKey;
+  let miner1PDA: anchor.web3.PublicKey;
 
   it("Is initialized bittensor!", async () => {
     user = anchor.web3.Keypair.generate();
@@ -38,7 +39,6 @@ describe("solana-tao", () => {
       program.programId
     );
 
-    // Add your test here.
     await program.methods
       .initializeSystem()
       .accounts({
@@ -54,12 +54,12 @@ describe("solana-tao", () => {
 
     const state = await program.account.bittensorState.fetch(systemPDA);
 
-    // console.log("State: ", state);
+    console.log("State: ", state);
   });
 
   it("Is initlialized subnet", async () => {
     [subnet1PDA] = await anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("subnet_state")],
+      [Buffer.from("subnet_state"), user.publicKey.toBuffer()],
       program.programId
     );
 
@@ -85,8 +85,12 @@ describe("solana-tao", () => {
   });
 
   it("Is initlialized Validator", async () => {
-    [validator1PDA]  = await anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("validator_state"),user.publicKey.toBuffer()],
+    [validator1PDA] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("validator_state"),
+        subnet1PDA.toBuffer(),
+        user.publicKey.toBuffer(),
+      ],
       program.programId
     );
 
@@ -109,6 +113,35 @@ describe("solana-tao", () => {
 
     console.log("Validator state: ", validator);
     console.log("Subnet state: ", subnet);
+  });
+  it("Is initlialized Miner", async () => {
+    [miner1PDA] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("miner_state"),
+        subnet1PDA.toBuffer(),
+        user.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
 
+    await program.methods
+      .initializeSubnetMiner()
+      .accounts({
+        minerState: miner1PDA,
+        subnetState: subnet1PDA,
+        owner: user.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([user])
+      .rpc()
+      .catch((err) => {
+        console.log("Error: ", err);
+      });
+
+    const miner = await program.account.minerState.fetch(miner1PDA);
+    const subnet = await program.account.subnetState.fetch(subnet1PDA);
+
+    console.log("miner state: ", miner);
+    console.log("Subnet state: ", subnet);
   });
 });

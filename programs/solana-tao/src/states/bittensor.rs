@@ -8,7 +8,7 @@ pub struct BittensorState {
 }
 
 impl BittensorState {
-    pub const LEN: usize = 8 + 1 + SubnetInfo::LEN * 32;
+    pub const LEN: usize = 32 + 1 + 4 + SubnetInfo::LEN * 32;
     pub const SEED: &'static [u8] = b"system";
 
     pub fn create_subnet(&mut self, owner: Pubkey) -> () {

@@ -1,17 +1,17 @@
 use crate::states::*;
 use anchor_lang::prelude::*;
 
-pub fn initialize_subnet_validator(ctx: Context<InitializeSubnetValidator>) -> Result<()> {
+pub fn initialize_subnet_miner(ctx: Context<InitializeSubnetMiner>) -> Result<()> {
     let subnet_state = &mut ctx.accounts.subnet_state;
-    let validator_state = &mut ctx.accounts.validator_state;
-    validator_state.owner = ctx.accounts.owner.key();
-    subnet_state.create_validator(ctx.accounts.owner.key(), 0, 0, 0);
+    let miner_state = &mut ctx.accounts.miner_state;
+    miner_state.owner = ctx.accounts.owner.key();
+    subnet_state.create_miner(ctx.accounts.owner.key());
 
     Ok(())
 }
 
 #[derive(Accounts)]
-pub struct InitializeSubnetValidator<'info> {
+pub struct InitializeSubnetMiner<'info> {
     #[account(
         mut,
         realloc = subnet_state.space(),
@@ -22,12 +22,12 @@ pub struct InitializeSubnetValidator<'info> {
 
     #[account(
         init,
-        space = ValidatorState::LEN,
+        space = 8 + MinerState::LEN,
         payer = owner,
-        seeds = [b"validator_state",subnet_state.key().as_ref(),owner.key().as_ref()],
+        seeds = [b"miner_state",subnet_state.key().as_ref(),owner.key().as_ref()],
         bump
     )]
-    pub validator_state: Account<'info, ValidatorState>,
+    pub miner_state: Account<'info, MinerState>,
 
     #[account(mut)]
     pub owner: Signer<'info>,

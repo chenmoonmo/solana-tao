@@ -21,7 +21,7 @@ pub fn initialize_subnet(ctx: Context<InitializeSubnet>) -> Result<()> {
 pub struct InitializeSubnet<'info> {
     #[account(
         mut,
-        seeds = [b"system".as_ref()],
+        seeds = [b"system"],
         bump,
     )]
     pub bittensor_state: Box<Account<'info, BittensorState>>,
@@ -30,7 +30,7 @@ pub struct InitializeSubnet<'info> {
         init,
         payer = owner,
         space = SubnetState::LEN,
-        seeds = [b"subnet_state".as_ref()],
+        seeds = [b"subnet_state",owner.key().as_ref()],
         bump,
     )]
     pub subnet_state: Box<Account<'info, SubnetState>>,

@@ -1,7 +1,5 @@
 use anchor_lang::prelude::*;
 
-// #[account(zero_copy(unsafe))]
-// #[repr(packed)]
 #[account]
 pub struct SubnetState {
     // 验证人质押总量
@@ -57,6 +55,7 @@ impl SubnetState {
     }
 
     pub fn create_validator(&mut self, owner: Pubkey, stake: u64, bonds: u64, lockup: u64) {
+        // TODO: 限制验证人数量
         // let len = self.validators.len();
 
         // if len >= self.validata_amount as usize {
@@ -69,6 +68,13 @@ impl SubnetState {
             stake,
             bonds,
             lockup,
+        });
+    }
+
+    pub fn create_miner(&mut self, owner: Pubkey) {
+        self.miners.push(MinerInfo {
+            id: self.miners.len() as u64,
+            owner,
         });
     }
 }
@@ -99,4 +105,8 @@ pub struct MinerInfo {
     // pub desc: String,
     // // rpc
     // pub rpc: String,
+}
+
+impl MinerInfo {
+    pub const LEN: usize = 8 + 32;
 }
