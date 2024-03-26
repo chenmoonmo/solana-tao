@@ -5,6 +5,9 @@ use anchor_lang::prelude::*;
 pub struct MinerState {
     pub id: u64,
     pub owner: Pubkey,
+    pub stake: u64,
+    // 矿工的得分 [[验证者ID, 得分], [验证者ID, 得分]...]
+    pub scores: Vec<[u8; 2]>,
 }
 
 impl MinerState {

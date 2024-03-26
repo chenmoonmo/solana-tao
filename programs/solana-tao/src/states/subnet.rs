@@ -9,6 +9,7 @@ pub struct SubnetState {
     // 矿工总数
     pub total_miners: u64,
     // 子网属性
+    pub stake: u64,
     // ID
     pub id: u8,
     // 权限拥有者
@@ -29,10 +30,11 @@ pub struct SubnetState {
     pub validators: Vec<ValidatorInfo>,
     // 矿工列表
     pub miners: Vec<MinerInfo>,
+    // 子网的得分 [[验证者ID, 得分], [验证者ID, 得分]...]
 }
 
 impl SubnetState {
-    pub const LEN: usize = 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8 + 24 + 24;
+    pub const LEN: usize = 8 + 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8 + 24 + 24;
 
     pub fn space(&self) -> usize {
         let validator_num = self.validators.len();

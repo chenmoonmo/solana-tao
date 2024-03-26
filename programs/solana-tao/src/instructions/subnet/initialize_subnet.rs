@@ -1,5 +1,6 @@
 use crate::states::*;
 use anchor_lang::prelude::*;
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 pub fn initialize_subnet(ctx: Context<InitializeSubnet>) -> Result<()> {
     // TODO:
@@ -27,6 +28,7 @@ pub struct InitializeSubnet<'info> {
     )]
     pub bittensor_state: Box<Account<'info, BittensorState>>,
 
+    // TODO: 最好和 子网 ID 相关
     #[account(
         init,
         payer = owner,
@@ -35,7 +37,29 @@ pub struct InitializeSubnet<'info> {
         bump,
     )]
     pub subnet_state: Box<Account<'info, SubnetState>>,
+
+    // 系统代笔
+    #[account(
+        mut,
+        seeds = [b"tao", bittensor_state.key().as_ref()], 
+        bump,
+    )]
+    pub tao_mint: Box<Account<'info, Mint>>,
+
+    // : 子网存储stake 的账户
+    #[account(
+        init,
+        payer = owner,
+        seeds=[b"tao_stake", subnet_state.key().as_ref()],
+        bump,
+        token::mint = tao_mint,
+        token::authority = bittensor_state
+    )]
+    pub tao_stake: Box<Account<'info, TokenAccount>>,
+
     #[account(mut)]
     pub owner: Signer<'info>,
+
     pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
 }

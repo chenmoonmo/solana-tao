@@ -49,10 +49,11 @@ pub struct SubnetInfo {
     pub distribute_reward: u64,
     pub validata_amount: u64,
     pub miner_amount: u64,
+    pub stake: u64,
 }
 
 impl SubnetInfo {
-    pub const LEN: usize = 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8;
+    pub const LEN: usize = 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8 + 8;
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
