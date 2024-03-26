@@ -5,11 +5,12 @@ pub struct BittensorState {
     pub owner: Pubkey,
     pub subnet_num: u8,
     pub subnets: Vec<SubnetInfo>,
+    pub validators: Vec<BittensorValidatorInfo>,
 }
 
 impl BittensorState {
-    pub const LEN: usize = 32 + 1 + 4 + SubnetInfo::LEN * 32;
-    pub const SEED: &'static [u8] = b"system";
+    pub const LEN: usize = 32 + 1 + 4 + SubnetInfo::LEN * 32 + 4 + BittensorValidatorInfo::LEN * 32;
+    pub const SEED: &'static [u8] = b"bittensor";
 
     pub fn create_subnet(&mut self, owner: Pubkey) -> () {
         self.subnets.push(SubnetInfo {
@@ -21,6 +22,17 @@ impl BittensorState {
             distribute_reward: 0,
             validata_amount: 0,
             miner_amount: 0,
+        });
+        ()
+    }
+
+    pub fn create_validator(&mut self, owner: Pubkey, stake: u64, bonds: u64, lockup: u64) -> () {
+        self.validators.push(BittensorValidatorInfo {
+            id: self.validators.len() as u64,
+            owner,
+            stake,
+            bonds,
+            lockup,
         });
         ()
     }
@@ -40,4 +52,20 @@ pub struct SubnetInfo {
 
 impl SubnetInfo {
     pub const LEN: usize = 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8;
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
+pub struct BittensorValidatorInfo {
+    pub id: u64,
+    pub owner: Pubkey,
+    // 质押数量
+    pub stake: u64,
+    // 工作量
+    pub bonds: u64,
+    // 保护期
+    pub lockup: u64,
+}
+
+impl BittensorValidatorInfo {
+    pub const LEN: usize = 8 + 32 + 8 + 8 + 8;
 }

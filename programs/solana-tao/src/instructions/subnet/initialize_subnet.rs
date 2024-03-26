@@ -21,7 +21,7 @@ pub fn initialize_subnet(ctx: Context<InitializeSubnet>) -> Result<()> {
 pub struct InitializeSubnet<'info> {
     #[account(
         mut,
-        seeds = [b"system"],
+        seeds = [b"bittensor"],
         bump,
     )]
     pub bittensor_state: Box<Account<'info, BittensorState>>,

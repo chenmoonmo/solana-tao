@@ -1,23 +1,23 @@
 import * as anchor from "@coral-xyz/anchor";
+import * as token from "@solana/spl-token";
 import { Program } from "@coral-xyz/anchor";
 import { SolanaTao } from "../target/types/solana_tao";
 
 describe("solana-tao", () => {
-  // Configure the client to use the local cluster.
-
   const provider = anchor.AnchorProvider.env();
-
-  let connection = provider.connection;
+  const connection = provider.connection;
 
   anchor.setProvider(provider);
 
   const program = anchor.workspace.SolanaTao as Program<SolanaTao>;
 
   let user: anchor.web3.Keypair;
-  let systemPDA: anchor.web3.PublicKey;
+  let bittensorPDA: anchor.web3.PublicKey;
   let subnet1PDA: anchor.web3.PublicKey;
   let validator1PDA: anchor.web3.PublicKey;
   let miner1PDA: anchor.web3.PublicKey;
+  let taoMint: anchor.web3.PublicKey;
+  let taoStake: anchor.web3.PublicKey;
 
   it("Is initialized bittensor!", async () => {
     user = anchor.web3.Keypair.generate();
@@ -34,17 +34,30 @@ describe("solana-tao", () => {
       signature: sig,
     });
 
-    [systemPDA] = await anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from(Buffer.from("system"))],
+    [bittensorPDA] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bittensor")],
+      program.programId
+    );
+
+    [taoMint] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from(Buffer.from("tao")), bittensorPDA.toBuffer()],
+      program.programId
+    );
+
+    [taoStake] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from(Buffer.from("tao_stake")), bittensorPDA.toBuffer()],
       program.programId
     );
 
     await program.methods
-      .initializeSystem()
+      .initializeBittensor()
       .accounts({
         owner: user.publicKey,
+        bittensorState: bittensorPDA,
+        taoMint,
+        taoStake,
         systemProgram: anchor.web3.SystemProgram.programId,
-        bittensorState: systemPDA,
+        tokenProgram: token.TOKEN_PROGRAM_ID,
       })
       .signers([user])
       .rpc()
@@ -52,9 +65,36 @@ describe("solana-tao", () => {
         console.log("Error: ", err);
       });
 
-    const state = await program.account.bittensorState.fetch(systemPDA);
+    const state = await program.account.bittensorState.fetch(bittensorPDA);
 
     console.log("State: ", state);
+
+    const userTaoATA = await token.createAssociatedTokenAccount(
+      connection,
+      user,
+      taoMint,
+      user.publicKey
+    );
+
+    await program.methods
+      .mintTao()
+      .accounts({
+        bittensorState: bittensorPDA,
+        taoMint,
+        userTaoAta: userTaoATA,
+        owner: user.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: token.TOKEN_PROGRAM_ID,
+      })
+      .signers([user])
+      .rpc()
+      .catch((err) => {
+        console.log("Error: ", err);
+      });
+
+    const taoBalance = await connection.getTokenAccountBalance(userTaoATA);
+
+    console.log("Tao balance: ", taoBalance);
   });
 
   it("Is initlialized subnet", async () => {
@@ -67,7 +107,7 @@ describe("solana-tao", () => {
       .initializeSubnet()
       .accounts({
         subnetState: subnet1PDA,
-        bittensorState: systemPDA,
+        bittensorState: bittensorPDA,
         owner: user.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
@@ -78,7 +118,7 @@ describe("solana-tao", () => {
       });
 
     const subnet = await program.account.subnetState.fetch(subnet1PDA);
-    const bittensor = await program.account.bittensorState.fetch(systemPDA);
+    const bittensor = await program.account.bittensorState.fetch(bittensorPDA);
 
     console.log("Subnet state: ", subnet);
     console.log("Bittensor state: ", bittensor);
