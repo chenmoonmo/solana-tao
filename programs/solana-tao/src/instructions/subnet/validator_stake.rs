@@ -5,8 +5,20 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use crate::states::*;
 
 pub fn validator_stake(ctx: Context<ValidatorStake>, amount: u64) -> Result<()> {
-    let validator_stake = &mut *ctx.accounts.tao_stake;
-    validator_stake.amount += amount;
+    let subnet_stake = &mut *ctx.accounts.subnet_state;
+    let validator_stake = &mut *ctx.accounts.validator_state;
+
+    let validators = subnet_stake.validators;
+
+    subnet_stake.total_stake += amount;
+    validator_stake.stake += amount;
+
+    // 遍历验证者 找到对应的验证者 修改 stake
+    for validator in validators.iter() {
+        if validator.id == validator_stake.id {
+            validator.stake += amount;
+        }
+    }
 
     token::transfer(
         CpiContext::new(
@@ -34,6 +46,15 @@ pub struct ValidatorStake<'info> {
     // 子网state
     #[account(mut)]
     pub subnet_state: Box<Account<'info, SubnetState>>,
+
+    //验证者
+    #[account(
+        mut,
+        seeds = [b"validator_state",subnet_state.key().as_ref(),owner.key().as_ref()],
+        bump
+    )]
+    pub validator_state: Account<'info, ValidatorState>,
+
     // tao mint
     #[account(
             mut,

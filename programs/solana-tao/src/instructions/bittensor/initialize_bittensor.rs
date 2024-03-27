@@ -3,7 +3,8 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 pub fn initialize_bittensor(ctx: Context<InitializeBittensor>) -> Result<()> {
-    
+    let timestamp = Clock::get()?.unix_timestamp;
+
     let bittensor_state = &mut ctx.accounts.bittensor_state;
     bittensor_state.owner = ctx.accounts.owner.key();
     Ok(())

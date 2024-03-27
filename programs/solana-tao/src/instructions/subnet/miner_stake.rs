@@ -7,7 +7,17 @@ use crate::states::*;
 pub fn miner_stake(ctx: Context<SubnetStake>, amount: u64) -> Result<()> {
     let miner_stake = &mut *ctx.accounts.miner_stake;
     miner_stake.stake += amount;
-    
+
+    let subnet_state = &mut *ctx.accounts.subnet_state;
+    let miners = subnet_state.miners;
+
+    // 遍历矿工 找到对应的矿工 修改 stake
+    for miner in miners.iter() {
+        if miner.id == miner_stake.id {
+            miner.stake += amount;
+        }
+    }
+
     token::transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

@@ -10,6 +10,16 @@ pub fn subnet_stake(ctx: Context<SubnetStake>, amount: u64) -> Result<()> {
     let subnet_state = &mut *ctx.accounts.subnet_state;
     subnet_state.stake += amount;
 
+    let bittensor_state = &mut *ctx.accounts.bittensor_state;
+
+    let subnets =  bittensor_state.subnets;
+    // 遍历子网 找到对应的子网 修改 stake
+    for subnet in subnets.iter() {
+        if subnet.id == subnet_state.id {
+            subnet.stake += amount;
+        }
+    }
+
     token::transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

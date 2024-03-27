@@ -12,7 +12,7 @@ pub struct ValidatorState {
     // 保护期
     pub lockup: u64,
     // 打分记录 [[矿工ID，得分], [矿工ID，得分]...]
-    pub scores: Vec<[u8; 2]>,
+    pub weights: Vec<[u8; 2]>,
 }
 
 impl ValidatorState {

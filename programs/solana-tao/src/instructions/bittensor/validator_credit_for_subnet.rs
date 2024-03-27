@@ -2,8 +2,20 @@ use anchor_lang::prelude::*;
 
 use crate::states::*;
 
+pub fn validator_credit_for_subnet(
+    ctx: Context<ValidatorCreditForSubnet>,
+    weight: u8,
+) -> Result<()> {
+    let bittensor_state = &mut ctx.accounts.bittensor_state;
+    let subnet_state = &ctx.accounts.subnet_state;
+
+    subnet_state.set_weight(ctx.accounts.validator_state.id, weight);
+
+    Ok(())
+}
+
 #[derive(Accounts)]
-pub struct ValidatorCredit<'info> {
+pub struct ValidatorCreditForSubnet<'info> {
     #[account(
         seeds = [b"bittensor"],
         bump
@@ -22,17 +34,5 @@ pub struct ValidatorCredit<'info> {
     pub validator_state: Account<'info, ValidatorState>,
 
     #[account(mut)]
-    pub miner_state: Account<'info, MinerState>,
-
-    #[account(mut)]
     pub owner: Signer<'info>,
-}
-
-pub fn validator_credit(ctx: Context<ValidatorCredit>, weight: u8) -> Result<()> {
-    let validator_state = &mut ctx.accounts.validator_state;
-    let miner_state = &mut ctx.accounts.miner_state;
-
-    miner_state.set_weight(validator_state.id, weight);
-
-    Ok(())
 }

@@ -1,5 +1,9 @@
 use anchor_lang::prelude::*;
 
+pub const PROPORTION: f64 = 0.5;
+pub const MINER_REWARD_PROPORTION: f64 = 0.5;
+pub const VALIDATOR_REWARD_PROPORTION: f64 = 0.5;
+
 #[account]
 pub struct SubnetState {
     // 验证人质押总量
@@ -9,6 +13,7 @@ pub struct SubnetState {
     // 矿工总数
     pub total_miners: u64,
     // 子网属性
+    // 子网的质押数量
     pub stake: u64,
     // ID
     pub id: u8,
@@ -31,10 +36,12 @@ pub struct SubnetState {
     // 矿工列表
     pub miners: Vec<MinerInfo>,
     // 子网的得分 [[验证者ID, 得分], [验证者ID, 得分]...]
+    pub weights: Vec<Vec<[u8; 2]>>,
 }
 
 impl SubnetState {
-    pub const LEN: usize = 8 + 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8 + 24 + 24;
+    pub const LEN: usize =
+        8 + 8 + 8 + 8 + 8 + 1 + 32 + 8 + 8 + 8 + 8 + 8 + 8 + 24 + 24 + 4 + ((4 + 2) * 32) * 10;
 
     pub fn space(&self) -> usize {
         let validator_num = self.validators.len();
@@ -70,16 +77,59 @@ impl SubnetState {
             stake,
             bonds,
             lockup,
+            reward: 0,
         });
     }
 
     pub fn create_miner(&mut self, owner: Pubkey) {
         self.miners.push(MinerInfo {
-            id: self.miners.len() as u64,
+            id: self.miners.len() as u8,
             owner,
         });
     }
+
+    pub fn set_weight(&mut self, validator_id: u8, weight: u8) -> Result<()> {
+        // 取出矩阵最后一行
+        let last_row = self.weights.last_mut().unwrap();
+        // 遍历矩阵最后一行 如果验证者 ID 存在则失败
+        for i in 0..last_row.len() {
+            if last_row[i][0] == validator_id {
+                // TODO: 抛出错误
+                // return Err(ErrorCode::ValidatorIdExists.into());
+            }
+        }
+
+        last_row.push([validator_id, weight]);
+        Ok(())
+    }
     // TODO: 分配奖励给验证人和矿工
+    pub fn distribute_reward(&mut self) {
+        // 给验证人分配奖励
+        let validators = self.validators;
+        let reward_base: f64 = 0;
+        let validator_reward = validators.iter().map(|validator| {
+            let bonds = validator.bonds;
+            let stake = validator.stake;
+            // 瓜分比
+            let validator_reward = (bonds as f64) * PROPORTION + (stake as f64) * (1 - PROPORTION);
+            reward_base += validator_reward;
+            (validator, validator_reward)
+        });
+
+        for (validator, validator_reward) in validator_reward {
+            // 瓜分比例
+            let proportion = validator_reward / reward_base;
+            validator.bonds = validator_reward;
+            // 瓜分奖励
+            let reward = (self.distribute_reward * VALIDATOR_REWARD_PROPORTION * proportion) as u64;
+            validator.reward += reward;
+        }
+
+        // 给矿工分配奖励
+        let miners = self.miners;
+        
+
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
@@ -92,6 +142,8 @@ pub struct ValidatorInfo {
     pub bonds: u64,
     // 保护期
     pub lockup: u64,
+    // 待提取奖励
+    pub reward: u64,
 }
 
 impl ValidatorInfo {
