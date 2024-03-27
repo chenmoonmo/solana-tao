@@ -22,6 +22,7 @@ impl BittensorState {
             distribute_reward: 0,
             validata_amount: 0,
             miner_amount: 0,
+            stake: 0,
         });
         ()
     }
@@ -58,7 +59,7 @@ impl SubnetInfo {
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
 pub struct BittensorValidatorInfo {
-    pub id: u64,
+    pub id: u8,
     pub owner: Pubkey,
     // 质押数量
     pub stake: u64,
@@ -69,5 +70,5 @@ pub struct BittensorValidatorInfo {
 }
 
 impl BittensorValidatorInfo {
-    pub const LEN: usize = 8 + 32 + 8 + 8 + 8;
+    pub const LEN: usize = 1 + 32 + 8 + 8 + 8;
 }

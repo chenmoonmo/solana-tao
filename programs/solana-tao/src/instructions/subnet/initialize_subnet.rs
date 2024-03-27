@@ -38,7 +38,7 @@ pub struct InitializeSubnet<'info> {
     )]
     pub subnet_state: Box<Account<'info, SubnetState>>,
 
-    // 系统代笔
+    // 系统代币
     #[account(
         mut,
         seeds = [b"tao", bittensor_state.key().as_ref()], 
@@ -46,7 +46,7 @@ pub struct InitializeSubnet<'info> {
     )]
     pub tao_mint: Box<Account<'info, Mint>>,
 
-    // : 子网存储stake 的账户
+    // 子网存储stake 的账户
     #[account(
         init,
         payer = owner,

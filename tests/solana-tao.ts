@@ -18,6 +18,7 @@ describe("solana-tao", () => {
   let miner1PDA: anchor.web3.PublicKey;
   let taoMint: anchor.web3.PublicKey;
   let taoStake: anchor.web3.PublicKey;
+  let subnetTaoStake: anchor.web3.PublicKey;
 
   it("Is initialized bittensor!", async () => {
     user = anchor.web3.Keypair.generate();
@@ -102,14 +103,22 @@ describe("solana-tao", () => {
       [Buffer.from("subnet_state"), user.publicKey.toBuffer()],
       program.programId
     );
+    
+    [subnetTaoStake] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("tao_stake"), subnet1PDA.toBuffer()],
+      program.programId
+    );
 
     await program.methods
       .initializeSubnet()
       .accounts({
+        taoMint,
         subnetState: subnet1PDA,
         bittensorState: bittensorPDA,
+        taoStake: subnetTaoStake,
         owner: user.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: token.TOKEN_PROGRAM_ID,
       })
       .signers([user])
       .rpc()

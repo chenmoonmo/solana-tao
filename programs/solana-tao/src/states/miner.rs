@@ -3,13 +3,31 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct MinerState {
-    pub id: u64,
+    pub id: u8,
     pub owner: Pubkey,
     pub stake: u64,
     // 矿工的得分 [[验证者ID, 得分], [验证者ID, 得分]...]
-    pub scores: Vec<[u8; 2]>,
+    pub scores: Vec<Vec<[u8; 2]>>,
 }
 
 impl MinerState {
-    pub const LEN: usize = 8 + 32;
+    pub const LEN: usize = 1 + 32 + 8 + 4 + ((4 + 2) * 32) * 10;
+    // 设置分数 提供验证者 ID 和 得分, 如果矩阵的最后一行中 验证者 ID 不存在则添加, 如果存在则失败
+    pub fn set_score(&mut self, validator_id: u8, score: u8) -> Result<()> {
+        // 取出矩阵最后一行
+        let last_row = self.scores.last_mut().unwrap();
+        // 遍历矩阵最后一行 如果验证者 ID 存在则失败
+        for i in 0..last_row.len() {
+            if last_row[i][0] == validator_id {
+                // TODO: 抛出错误
+                // return Err(ErrorCode::ValidatorIdExists.into());
+            }
+        }
+
+        last_row.push([validator_id, score]);
+
+        Ok(())
+    }
+
+    
 }

@@ -5,7 +5,6 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use crate::states::*;
 
 pub fn validator_stake(ctx: Context<ValidatorStake>, amount: u64) -> Result<()> {
-    
     let validator_stake = &mut *ctx.accounts.tao_stake;
     validator_stake.amount += amount;
 
@@ -52,13 +51,12 @@ pub struct ValidatorStake<'info> {
 
     #[account(
         mut,
-        payer = owner,
         seeds = [b"validator_state",subnet_state.key().as_ref(),owner.key().as_ref()],
         bump
     )]
     // tao ata 账户
     #[account(
-        mut,
+        // mut,
         constraint = user_tao_ata.mint == tao_mint.key(),
         has_one = owner,
     )]

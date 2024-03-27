@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct ValidatorState {
-    pub id: u64,
+    pub id: u8,
     pub owner: Pubkey,
     // 质押数量
     pub stake: u64,
@@ -16,5 +16,5 @@ pub struct ValidatorState {
 }
 
 impl ValidatorState {
-    pub const LEN: usize = 8 + 8 + 32 + 8 + 8 + 8 + 4 + 2;
+    pub const LEN: usize = 8 + 1 + 32 + 8 + 8 + 8 + 4 + 2;
 }

@@ -84,7 +84,7 @@ impl SubnetState {
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
 pub struct ValidatorInfo {
-    pub id: u64,
+    pub id: u8,
     pub owner: Pubkey,
     // 质押数量
     pub stake: u64,
@@ -95,12 +95,12 @@ pub struct ValidatorInfo {
 }
 
 impl ValidatorInfo {
-    pub const LEN: usize = 8 + 32 + 8 + 8 + 8;
+    pub const LEN: usize = 1 + 32 + 8 + 8 + 8;
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
 pub struct MinerInfo {
-    pub id: u64,
+    pub id: u8,
     pub owner: Pubkey,
     // // 名称
     // pub name: String,
@@ -111,5 +111,5 @@ pub struct MinerInfo {
 }
 
 impl MinerInfo {
-    pub const LEN: usize = 8 + 32;
+    pub const LEN: usize = 1 + 32;
 }

@@ -6,6 +6,7 @@
         "./programs/solana-tao/Cargo.toml",
         "./programs/solana-tao/Cargo.toml",
         "./programs/solana-tao/Cargo.toml",
+        "./programs/solana-tao/Cargo.toml",
         "./programs/solana-tao/Cargo.toml"
     ]
 }
